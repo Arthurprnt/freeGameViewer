@@ -1,5 +1,14 @@
+const { createCanvas, loadImage, registerFont } = require('canvas')
 const fs = require("fs");
 const puppeteer = require('puppeteer');
+const { TwitterApi } = require('twitter-api-v2');
+
+const client = new TwitterApi({
+    appKey: 'nHOSEXYtROds77Mm54iYxWPXT',
+    appSecret: 'x3BXnrDjwmTE3nxmygMjyHSbmEdksgdJ3R3rRrpV9M9cqfKjgl',
+    accessToken: '1794071024679436288-WSCA1JV9EbhC7s63kyplzthqX546BT',
+    accessSecret: '0xL05vrpRTf1iqAwIcxZIWu6DKoSQDX2gAMMnUFwsuAE8',
+});
 
 function getGMTOffset() {
 
@@ -15,7 +24,7 @@ function getGMTOffset() {
 
 }
 
-//setInterval(() => {
+setInterval(() => {
 
 
 
@@ -74,19 +83,20 @@ function getGMTOffset() {
 
                     console.log(`Je vérifie le jeu en promo n°${i+1}`);
                     const url = freeGamesList[i];
+                    const appId = url.replace('https://store.steampowered.com/app/', "").split("/")[0];
                     await page.goto(url);
                     const title = await page.$eval('.apphub_AppName', el => el.textContent);
                     const desc = await page.$eval('.game_purchase_discount_quantity ', el => el.textContent);
                     const priceofgame = await page.evaluate(() => {
 
-                        let data = [];
+                        let data_price = [];
                         let elements = document.querySelectorAll('.discount_original_price');
                         for(let element of elements) {
         
-                            data.push(element.textContent);
+                            data_price.push(element.textContent);
 
                         }
-                        return data;
+                        return data_price;
 
                     });
                     // La date est pas en clair, donc on fait encore un peu de magie noire
@@ -96,15 +106,59 @@ function getGMTOffset() {
 
                         console.log(`Nouveau jeu gratuit: ${title}`);
                         data.games.push(title);
-                        data.games_data.push({
+                        var gameData = {
 
                             "title": title,
-                            "date": Date.parse(`${parseInt(date.split(" @ ")[0].split(" ")[0])+1} ${date.split(" @ ")[0].split(" ")[1]} ${new Date().getFullYear()}`)
+                            "date": Date.parse(`${parseInt(date.split(" @ ")[0].split(" ")[0])+1} ${date.split(" @ ")[0].split(" ")[1]} ${new Date().getFullYear()}`),
+                            // On prend le premier élément car les prix des dlc sont aussi dans la liste
+                            "price": priceofgame[0],
+                            "img": `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`,
+                            "link": url
 
-                        });
+                        }
+                        data.games_data.push(gameData);
                         console.log(`J'ai ajouté ${title}`);
 
-                        // Faire le tweet
+
+
+                        // Création de l'image attachée au tweet via canvas
+                        const canvas = createCanvas(600, 407);
+                        const ctx = canvas.getContext('2d');
+                        registerFont('./assets/Montserrat-ExtraBold.ttf', { family: 'Mont' });
+                        ctx.font = '50px Mont';
+                        ctx.fillStyle = "#ffffff";
+                        ctx.strokeStyle = "#000000";
+                        ctx.lineWidth = 2;
+                        loadImage('./assets/wallpaper.png').then((image) => {
+                            ctx.drawImage(image, 0, 0);
+                            const promise = loadImage(gameData.img);
+                            promise.then(async cover => {
+                                ctx.drawImage(cover, 70, 70);
+                                var textToPrint = `${gameData.price} ➜ 0,00€`;
+                                var txtSize = ctx.measureText(textToPrint).width;
+                                var txtXPos = 300-txtSize/2;
+                                ctx.fillText(textToPrint, txtXPos, 330);
+                                ctx.strokeText(textToPrint, txtXPos, 330);
+                                const buffer = canvas.toBuffer("image/png");
+
+
+
+                                // Envoie du tweet
+                                // Ces variables servent pour l'écriture de la date
+                                var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                                var DDay = new Date(gameData.date);
+                                const mediaIds = await Promise.all([
+                                    client.v1.uploadMedia(buffer, { mimeType: 'png' })
+                                ]);
+                                client.v2.tweet({
+                                    text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame`,
+                                    media: { media_ids: mediaIds }
+                                });
+
+
+
+                            })
+                        })
 
                     }
                 }
@@ -141,4 +195,4 @@ function getGMTOffset() {
         }
     });
 
-//}, 3600000);
+}, 3600000);
