@@ -1,0 +1,8 @@
+{
+    "appKey": "YOUR_APPKEY",
+    "appSecret": "YOUR_APPSECRET",
+    "accessToken": "YOUR_ACCESSTOKEN",
+    "accessSecret": "YOUR_ACCESSSECRET",
+    "clientId": "YOUR_CLIENTID",
+    "clientSecret": "YOUR_CLIENTSECRET"
+}
