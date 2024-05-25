@@ -18,12 +18,26 @@ function getGMTOffset() {
     const hours = Math.floor(Math.abs(offset) / 60);
     const minutes = Math.abs(offset) % 60;
     const sign = offset > 0 ? "-" : "+";
-  
+
     // Formatage du décalage horaire en GMT±HH:MM
     const gmtOffset = `GMT${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     return gmtOffset;
 
 }
+
+function addZeroIfNeeded(value) {
+
+    // Ajoute un zéro devant la valeur si elle est inférieure à 10
+    // (pour avoir un beau format en XX:XX)
+    if(value.toString().length === 1) {
+        return `0${value}`;
+    } else {
+        return value;
+    }
+
+}
+
+console.log("\nfreeGameViewer by Arthurprnt\n")
 
 setInterval(() => {
 
@@ -93,7 +107,7 @@ setInterval(() => {
                         let data_price = [];
                         let elements = document.querySelectorAll('.discount_original_price');
                         for(let element of elements) {
-        
+
                             data_price.push(element.textContent);
 
                         }
@@ -129,7 +143,7 @@ setInterval(() => {
                         ctx.font = '50px Mont';
                         ctx.fillStyle = "#ffffff";
                         ctx.strokeStyle = "#000000";
-                        ctx.lineWidth = 2;
+                        ctx.lineWidth = 4;
                         loadImage('./assets/wallpaper.png').then((image) => {
                             ctx.drawImage(image, 0, 0);
                             const promise = loadImage(gameData.img);
@@ -138,8 +152,8 @@ setInterval(() => {
                                 var textToPrint = `${gameData.price} ➜ 0,00€`;
                                 var txtSize = ctx.measureText(textToPrint).width;
                                 var txtXPos = 300-txtSize/2;
-                                ctx.fillText(textToPrint, txtXPos, 330);
                                 ctx.strokeText(textToPrint, txtXPos, 330);
+                                ctx.fillText(textToPrint, txtXPos, 330);
                                 const buffer = canvas.toBuffer("image/png");
 
 
@@ -152,7 +166,7 @@ setInterval(() => {
                                     client.v1.uploadMedia(buffer, { mimeType: 'png' })
                                 ]);
                                 client.v2.tweet({
-                                    text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame`,
+                                    text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame`,
                                     media: { media_ids: mediaIds }
                                 });
 
@@ -196,4 +210,4 @@ setInterval(() => {
         }
     });
 
-}, 3600000);
+}, 1200000);
