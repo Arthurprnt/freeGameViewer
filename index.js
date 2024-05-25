@@ -1,13 +1,14 @@
-const { createCanvas, loadImage, registerFont } = require('canvas')
+const { createCanvas, loadImage, registerFont } = require('canvas');
+const config = require("./config.json");
 const fs = require("fs");
 const puppeteer = require('puppeteer');
 const { TwitterApi } = require('twitter-api-v2');
 
 const client = new TwitterApi({
-    appKey: 'nHOSEXYtROds77Mm54iYxWPXT',
-    appSecret: 'x3BXnrDjwmTE3nxmygMjyHSbmEdksgdJ3R3rRrpV9M9cqfKjgl',
-    accessToken: '1794071024679436288-WSCA1JV9EbhC7s63kyplzthqX546BT',
-    accessSecret: '0xL05vrpRTf1iqAwIcxZIWu6DKoSQDX2gAMMnUFwsuAE8',
+    appKey: config.appKey,
+    appSecret: config.appSecret,
+    accessToken: config.accessToken,
+    accessSecret: config.accessSecret,
 });
 
 function getGMTOffset() {
