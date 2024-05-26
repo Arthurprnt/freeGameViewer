@@ -37,6 +37,17 @@ function addZeroIfNeeded(value) {
 
 }
 
+function convertTo24Format(time) {
+
+    // Permet de convertir une heure au format H12 en H24
+    if(time.endsWith("pm")) {
+        return `${parseInt(time.split(":")[0])+12}:${time.split(":")[1].replace("pm", "")}`;
+    } else {
+        return `${time.replace("am", "")}`;
+    }
+
+}
+
 console.log("\nfreeGameViewer by Arthurprnt\n")
 
 setInterval(() => {
@@ -124,7 +135,7 @@ setInterval(() => {
                         var gameData = {
 
                             "title": title,
-                            "date": Date.parse(`${parseInt(date.split(" @ ")[0].split(" ")[0])+1} ${date.split(" @ ")[0].split(" ")[1]} ${new Date().getFullYear()}`),
+                            "date": Date.parse(`${parseInt(date.split(" @ ")[0].split(" ")[0])+1} ${date.split(" @ ")[0].split(" ")[1]} ${convertTo24Format(date.split(" @ ")[1])} ${new Date().getFullYear()}`),
                             // On prend le premier élément car les prix des dlc sont aussi dans la liste
                             "price": priceofgame[0],
                             "img": `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`,
