@@ -96,16 +96,21 @@ setInterval(() => {
 
                 });
                 var freeGamesList = [];
-                for(i=0; i<result[0].length; i+=1) {
+                // Si il n'y a pas de jeux en réduc, le programme ne crash pas grâce au try
+                try {
+                    for(i=0; i<result[0].length; i+=1) {
 
-                    // On décrypte la magie noir, ça marche
-                    if(result[0][i].startsWith("http")) {
-
-                        gamelink = result[0][i].split('"')[0];
-                        freeGamesList.push(gamelink);
-
+                        // On décrypte la magie noir, ça marche
+                        if(result[0][i].startsWith("http")) {
+    
+                            gamelink = result[0][i].split('"')[0];
+                            freeGamesList.push(gamelink);
+    
+                        }
+    
                     }
-
+                } catch (err) {
+                    console.log("Y'a pas de jeux en réduc je crois")
                 }
                 console.log(`Jeux en réduction récupérés, il y en a ${freeGamesList.length}`);
 
@@ -200,10 +205,10 @@ setInterval(() => {
                                         client.v1.uploadMedia(buffer, { mimeType: 'png' })
                                     ]);
                                     client.v2.tweet({
-                                        text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame`,
+                                        text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame #Free #Steam`,
                                         media: { media_ids: mediaIds }
                                     });
-    
+                                    console.log(`J'ai fais le tweet pour le jeu ${gameData.title} !`)
     
     
                                 })
@@ -234,6 +239,7 @@ setInterval(() => {
 
 
                 // On enregistre les modifications faites
+                await sleep(10000);
                 fs.writeFile("./data.json", JSON.stringify(data), err => {
                     if (err) console.log("Error writing file:", err);
                     else {
@@ -247,4 +253,4 @@ setInterval(() => {
         }
     });
 
-}, 1200000);
+}, 900000);
