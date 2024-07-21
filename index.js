@@ -75,7 +75,10 @@ setInterval(() => {
 
                     // Lecture effectuée avec sucès
                     var data = JSON.parse(jsonString);
-                    const browser = await puppeteer.launch({env: { LANGUAGE: "en_GB" } });
+                    const browser = await puppeteer.launch({
+                        env: { LANGUAGE: "en_GB" },
+                        args: ["--no-sandbox"]
+                    });
                     const page = await browser.newPage();
 
 
