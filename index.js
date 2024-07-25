@@ -80,6 +80,7 @@ setInterval(() => {
                         args: ["--no-sandbox"]
                     });
                     const page = await browser.newPage();
+                    await page.setDefaultNavigationTimeout(0);
 
 
 
