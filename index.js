@@ -55,7 +55,7 @@ function convertTo24Format(time) {
 
 }
 
-console.log("\nfreeGameViewer by Arthurprnt\n")
+console.log("\nfreeGameViewer by Arthurprnt\n");
 
 setInterval(() => {
 
@@ -85,22 +85,32 @@ setInterval(() => {
 
 
                     // Récupère les liens des pages des jeux en réduction à -100%
-                    await page.goto('https://store.steampowered.com/search/?maxprice=free&supportedlang=french%2Cenglish&specials=1&ndl=1');
-                    const result = await page.evaluate(() => {
+                    var result = [];
+                    try {
 
-                        // On fait de la magie noir avec les données récup
-                        let data = [];
-                        let elements = document.querySelectorAll('#search_resultsRows');
+                        await page.goto('https://store.steampowered.com/search/?maxprice=free&supportedlang=french%2Cenglish&specials=1&ndl=1');
+                        result = await page.evaluate(() => {
+    
+                            // On fait de la magie noir avec les données récup
+                            let data = [];
+                            let elements = document.querySelectorAll('#search_resultsRows');
+    
+                            for(let element of elements) {
+    
+                                data.push(element.innerHTML.split('<a href="'));
+    
+                            }
+    
+                            return data;
+    
+                        });
 
-                        for(let element of elements) {
+                    } catch (err) {
 
-                            data.push(element.innerHTML.split('<a href="'));
+                        console.log("Un crash a été évité !")
 
-                        }
-
-                        return data;
-
-                    });
+                    }
+                    
                     var freeGamesList = [];
                     // Si il n'y a pas de jeux en réduc, le programme ne crash pas grâce au try
                     try {
@@ -211,7 +221,7 @@ setInterval(() => {
                                             client.v1.uploadMedia(buffer, { mimeType: 'png' })
                                         ]);
                                         client.v2.tweet({
-                                            text: `The game "${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame #Free #Steam`,
+                                            text: `"${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\n\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame #Steam #FreeSteamGame #Free #Gratis #Game #${gameData.title.replaceAll(" ", "")}`,
                                             media: { media_ids: mediaIds }
                                         });
                                         console.log(`J'ai fais le tweet pour le jeu ${gameData.title} !`)
@@ -266,4 +276,4 @@ setInterval(() => {
 
     }
 
-}, 900000);
+}, 600000);
