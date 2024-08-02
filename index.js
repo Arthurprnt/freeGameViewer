@@ -3,6 +3,7 @@ const config = require("./config.json");
 const fs = require("fs");
 const puppeteer = require('puppeteer');
 const { TwitterApi } = require('twitter-api-v2');
+const logger = require('./logger.js');
 
 const client = new TwitterApi({
     appKey: config.appKey,
@@ -59,14 +60,14 @@ console.log("\nfreeGameViewer by Arthurprnt\n");
 
 setInterval(() => {
 
+    const actual_date = new Date();
 
-
-    console.log("Vérification lancée");
+    logger.info(actual_date, "Verification started");
     try {
 
         fs.readFile("./data.json", "utf8", (err, jsonString) => {
             if (err) {
-                console.log("File read failed:", err);
+                logger.error(actual_date, `File read failed: ${err}`);
                 return;
             } else {
                 (async () => {
@@ -107,7 +108,7 @@ setInterval(() => {
 
                     } catch (err) {
 
-                        console.log("Un crash a été évité !")
+                        logger.warn(actual_date, "Avoided a TIME_OUT crash")
 
                     }
                     
@@ -126,32 +127,31 @@ setInterval(() => {
         
                         }
                     } catch (err) {
-                        console.log("Y'a pas de jeux en réduc je crois")
+                        logger.warn(actual_date, "No games in sale")
                     }
-                    console.log(`Jeux en réduction récupérés, il y en a ${freeGamesList.length}`);
+                    logger.info(actual_date, `Grabbed ${freeGamesList.length} games in sale`);
 
 
 
                     // Pour chaque jeu en promo, en récupère son nom, son prix d'origine et la date de la fin de la promo
                     for (i=0; i<freeGamesList.length; i+=1) {
 
-                        console.log(`Je vérifie le jeu en promo n°${i+1}`);
+                        logger.info(actual_date, `Started verification for game n°${i+1}`);
                         const url = freeGamesList[i];
                         const appId = url.replace('https://store.steampowered.com/app/', "").split("/")[0];
                         await page.goto(url, { waitUntil: 'load' });
                         try {
                             // Si le jeu a une limite d'âge on n'a pas directement accès aux infos...
                             // On donne donc un âge valide pour accèder à la page
-                            console.log("Bypass d'une possible limite d'age");
                             // C'est ma vrai date de naissance si jamais
                             await page.select('#ageDay', '24');
                             await page.select('#ageMonth', 'February');
                             await page.select('#ageYear', '2005');
                             await page.click('.agegate_btn_ctn');
-                            console.log("Limite d'age bypassée avec succès");
+                            logger.info(actual_date, "Age restriction dodged with success");
 
                         } catch (err) {
-                            console.log("Pas de limite d'age");
+                            logger.info(actual_date, "No age restriction for this game");
                         }
                         await sleep(2500);
                         const title = await page.$eval('.apphub_AppName', el => el.textContent);
@@ -174,7 +174,8 @@ setInterval(() => {
                             // On vérifie si on a déjà scrap cette promo
                             if(!data.games.includes(title)) {
         
-                                console.log(`Nouveau jeu gratuit: ${title}`);
+                                logger.info(actual_date, `New free game: ${title}`);
+                                console.log(`New game: ${title}`);
                                 data.games.push(title);
                                 var gameData = {
         
@@ -187,7 +188,7 @@ setInterval(() => {
         
                                 }
                                 data.games_data.push(gameData);
-                                console.log(`J'ai ajouté ${title}`);
+                                logger.info(actual_date, `Added "${title}" to the database`);
         
         
         
@@ -224,7 +225,7 @@ setInterval(() => {
                                             text: `"${gameData.title}" is free on Steam until the ${DDay.getDate()} ${months[DDay.getMonth()]} at ${addZeroIfNeeded(DDay.getHours())}:${addZeroIfNeeded(DDay.getMinutes())} ${getGMTOffset().split(":")[0]}.\n\nGet the game here: ${gameData.link}\n\n#FreeGame #SteamGame #Steam #FreeSteamGame #Free #Gratis #Game #${gameData.title.replaceAll(" ", "")}`,
                                             media: { media_ids: mediaIds }
                                         });
-                                        console.log(`J'ai fais le tweet pour le jeu ${gameData.title} !`)
+                                        logger.info(actual_date, `Tweeted successfully for the game "${gameData.title}"`)
         
         
                                     })
@@ -232,20 +233,20 @@ setInterval(() => {
         
                             }
                         } catch (err) {
-                            console.log("C'est un dlc, on annule");
+                            logger.error(actual_date, "It's a weird dlc, stopped the process");
                         }
                     }
 
 
 
                     // On vérifie si des promos dans database sont terminées, si oui on les supprime
-                    console.log("Je vérifie si des promos sont finies");
+                    logger.info(actual_date, "Checking if a sale has ended");
                     await browser.close();
                     for(i=0; i<data.games_data.length; i+=1) {
                         if(data.games_data[i].date < Date.now()) {
 
                             // La promo est finie, on la supprime
-                            console.log(`La promo ${data.games_data[i].title} est fini`);
+                            logger.info(actual_date, `The game "${data.games_data[i].title}" is no longer in sale`);
                             data.games.splice(data.games.indexOf(data.games_data[i].title));
                             data.games_data.splice(i);
 
@@ -257,11 +258,10 @@ setInterval(() => {
                     // On enregistre les modifications faites
                     await sleep(10000);
                     fs.writeFile("./data.json", JSON.stringify(data), err => {
-                        if (err) console.log("Error writing file:", err);
+                        if (err) logger.error(actual_date, `Error writing file: ${err}`);
                         else {
 
-                            console.log("L'écriture s'est bien passée");
-                            console.log("\n==========\n");
+                            logger.info("Wrote in the database with success");
 
                         }
                     });
@@ -272,7 +272,7 @@ setInterval(() => {
     } catch (err) {
 
         // Pour éviter de devoir relancer le script quand le max delay est dépassé
-        console.log("Y'a eu un bug, oupsi...")
+        logger.error(actual_date, `Unknown error: ${err}`)
 
     }
 
