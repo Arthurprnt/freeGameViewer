@@ -12,19 +12,20 @@ function addZeroIfNeeded(value) {
 
 }
 
-function logToFile(actual_date, message) {
+function logToFile(message) {
 
-  const logStream = fs.createWriteStream(`./logs/${addZeroIfNeeded(actual_date.getDate())}_${addZeroIfNeeded(actual_date.getMonth()+1)}_${addZeroIfNeeded(actual_date.getFullYear())}.txt`, { flags: 'a' });
-  logStream.write(`${addZeroIfNeeded(actual_date.getHours())}:${addZeroIfNeeded(actual_date.getMinutes())}:${addZeroIfNeeded(actual_date.getSeconds())} | ${message}\n`);
+  const date = new Date();
+  const logStream = fs.createWriteStream(`./logs/${addZeroIfNeeded(date.getDate())}_${addZeroIfNeeded(date.getMonth()+1)}_${addZeroIfNeeded(date.getFullYear())}.txt`, { flags: 'a' });
+  logStream.write(`${addZeroIfNeeded(date.getHours())}:${addZeroIfNeeded(date.getMinutes())}:${addZeroIfNeeded(date.getSeconds())} | ${message}\n`);
   logStream.end();
 
 }
 
 const logger = {
 
-  info: (file_name, message) => logToFile(`[INFO] ${file_name, message}`),
-  warn: (file_name, message) => logToFile(`[WARN] ${file_name, message}`),
-  error: (file_name, message) => logToFile(`[ERROR] ${file_name, message}`),
+  info: (message) => logToFile(`[INFO] ${message}`),
+  warn: (message) => logToFile(`[WARN] ${message}`),
+  error: (message) => logToFile(`[ERROR] ${message}`),
 
 };
 
