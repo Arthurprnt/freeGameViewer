@@ -15,4 +15,4 @@ jobs:
         with:
           node-version: 18
       - run: npm i node index.js
-      - run: node ${{ github.action_path }}/index.js
+      - run: node ${{ github.action_path }}index.js
