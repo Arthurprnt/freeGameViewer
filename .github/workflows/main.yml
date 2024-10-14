@@ -15,5 +15,6 @@ jobs:
         with:
           node-version: 18
       - run: cd ${{ github.action_path }}
+      - run: ls
       - run: npm i
       - run: node ${{ github.action_path }}index.js
