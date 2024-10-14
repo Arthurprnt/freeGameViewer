@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: 18
       - run: npm i
-      - run: node index.js
+      #- run: node index.js
