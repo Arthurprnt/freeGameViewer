@@ -11,16 +11,16 @@ jobs:
     permissions:
       contents: write
     steps:
-      - env:
-          appKey: ${{ secrets.APPKEY }}
-          appSecret: ${{ secrets.APPSECRET }}
-          accessToken: ${{ secrets.ACCESSTOKENT }}
-          accessSecret: ${{ secrets.ACCESSSECRET }}
-          clientId: ${{ secrets.CLIENTID }}
-          clientSecret: ${{ secrets.CLIENTSECRET }}
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v2
         with:
           node-version: 18
       - run: npm i
       - run: node index.js
+        env:
+            appKey: ${{ secrets.APPKEY }}
+            appSecret: ${{ secrets.APPSECRET }}
+            accessToken: ${{ secrets.ACCESSTOKENT }}
+            accessSecret: ${{ secrets.ACCESSSECRET }}
+            clientId: ${{ secrets.CLIENTID }}
+            clientSecret: ${{ secrets.CLIENTSECRET }}
