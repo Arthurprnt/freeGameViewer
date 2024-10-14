@@ -11,9 +11,17 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Run Code
+        env:
+          appKey: ${{ secrets.APPKEY }}
+          appSecret: ${{ secrets.APPSECRET }}
+          accessToken: ${{ secrets.ACCESSTOKENT }}
+          accessSecret: ${{ secrets.ACCESSSECRET }}
+          clientId: ${{ secrets.CLIENTID }}
+          clientSecret: ${{ secrets.CLIENTSECRET }}
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v2
         with:
           node-version: 18
       - run: npm i
-      #- run: node index.js
+      - run: node index.js
