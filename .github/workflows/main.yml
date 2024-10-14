@@ -11,8 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Run Code
-        env:
+      - env:
           appKey: ${{ secrets.APPKEY }}
           appSecret: ${{ secrets.APPSECRET }}
           accessToken: ${{ secrets.ACCESSTOKENT }}
