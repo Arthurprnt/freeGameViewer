@@ -16,5 +16,5 @@ jobs:
           node-version: 18
       - run:
           npm i
-          node ${{ github.action_path }}/index.js
+          node index.js
   
