@@ -14,5 +14,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 18
-      - run: npm i node index.js
+      - run: cd ${{ github.action_path }}
+      - run: npm i
       - run: node ${{ github.action_path }}index.js
