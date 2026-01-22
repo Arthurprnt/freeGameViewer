@@ -9,7 +9,7 @@
   "author": "arthurprnt",
   "license": "ISC",
   "dependencies": {
-    "canvas": "^2.11.2",
+    "canvas": "^3.2.1",
     "puppeteer": "^22.15.0",
     "twitter-api-v2": "^1.17.0"
   }
